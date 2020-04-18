@@ -4,13 +4,14 @@ import requests
 import json
 import threading
 from Car import Car
-from simulatedVehicle from simulatedVehicle
+from simulatedVehicle import simulatedVehicle
 from time import sleep
 from tabulate import tabulate
 from prettytable import PrettyTable
 import sys
 
 vehicle_list = []
+vehicle_db_dictionary = {}
 
 class Controller:
     def __init__(self):
@@ -21,11 +22,12 @@ class Controller:
         while True:
             if len(self.vehicleArr) != 0:
                 for index, vehicle in enumerate(self.vehicleArr, 1):
-                    self.models.append(VehicleModel(vehicle, index))
+                    self.models.append(simulatedVehicle(vehicle, index))
             for model in self.models:
+
                 thread = threading.Thread(target=model.driver, name=f"model-{model.threadid}")
                 thread.start()
-            time.sleep(5)
+            sleep(3)
             self.models = []
 
 
@@ -37,6 +39,7 @@ def main():
     print("\t*** Any time you want you quit just press 'Q' ***")
     print("\t*************************************************")
     print("\t********* Retrieving your vehicles .... *********")
+    global vehicle_db_dictionary
 
     vehicle_db_dictionary = retrieveVehicles()
     printCurrentState(vehicle_db_dictionary)
@@ -55,34 +58,20 @@ def printCurrentState(vehicle_dict):
     # if they do anything but start route, do backend data changes
     # if they do start route:
     #   create new thread for that car with function executeCarRoute
-    for car in vehicle_db_dict.values():
+    for car in vehicle_dict.values():
         carTable.add_row([car.vehicle_id,car.vehicle_status,car.fleet_id,car.vehicle_make,car.license_plate,car.current_long,car.current_lat,car.last_hb] )
     print(carTable)
     print("\n")
     print(simulatorOptions)
 
-def view(inputVar):
-    while True:
-        print('Input the vehicle id you want to spin up!')
-        userInput = input("> ")
-        if userInput.lower() == 'all':
-            inputVar.extend([vehicle for vehicle in vehicleDict.values()])
-        #put something for turnoff heartbeat
-        else:
-            try:
-                vehicle = vehicleDict[int(userInput)]
-                inputVar.append(vehicle)
-            except KeyError as ke:
-                print(ke)
-                print('Key doesn\'t exist in dictionary!')
-#returns a list of vehicles of type Car
+#returns a dictionary of vehicles of type Car
 #Want to make a thread for each of these? Don't know if I should do this inside this function or somewhere else
 #Wherever I end up making the vehicle threads, have those threads send updates to the db updating it's car Information
 #However this is done Here's what needs to get done:
     #for every vehicle, a request should be sent to the BE to update the info of that vehicle in the DB
     #how that gets done with threading i'm not sure yet
 def retrieveVehicles():
-    request_vehicles = requests.get("https://supply.team22.softwareengineeringii.com/vehicleRequest")
+    request_vehicles = requests.get("https://supply.team22.softwareengineeringii.com/supply/vehicles")
     #v_list = []
     v_dict = {}
     if request_vehicles:
@@ -97,18 +86,42 @@ def retrieveVehicles():
             c_long = v.get("current_lon")
             c_lat = v.get("current_lat")
             last_hb = v.get("last_hb")
-            simulated_vehicle = Car(v_id, v_stat, f_id, v_make, l_plate, c_long, c_lat, last_hb)
+            heartbeat = True
+            route = []
+            simulated_vehicle = Car(v_id, v_stat, f_id, v_make, l_plate, c_long, c_lat, last_hb, heartbeat, route)
             v_dict.update({v_id : simulated_vehicle})
         #return v_list
         #for a car to be on it's not in maintenance
+
         return v_dict
         # for i,j in hb_dict.items():
         #     print("Key :: " + i)
         #     print("\nValue :: " + j)
     else:
         print("ERROR :: ", request_vehicles.status_code)
-        print("We were not able to retrieve your vehicles, restarting application ... ")
+        print("We were not able to retrieve your vehicles, closing application ... ")
         sys.exit
+
+
+def view(inputVar):
+    threaded_vehicles = {}
+    while True:
+        print('Input the vehicle id you want to spin up!')
+        userInput = input("> ")
+        if userInput.lower() == 'all':
+            inputVar.extend([vehicle for vehicle in vehicle_db_dictionary.values()])
+        #put something for turnoff heartbeat
+        else:
+            try:
+                #vehicle = vehicle_db_dictionary[int(userInput)]
+                vehicle = vehicle_db_dictionary.get(int(userInput))
+
+                if (vehicle != None):
+                    inputVar.append(vehicle)
+            except KeyError as ke:
+                print(ke)
+                print('Key doesn\'t exist in dictionary!')
+
 
 
 #group vehicles by fleet id

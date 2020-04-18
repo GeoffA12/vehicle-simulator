@@ -1,5 +1,5 @@
 class Car:
-    def __init__ (self, vehicle_id, vehicle_status, fleet_id, vehicle_make, licence_plate, current_lat, current_long, last_hb):
+    def __init__ (self, vehicle_id, vehicle_status, fleet_id, vehicle_make, licence_plate, current_lat, current_long, last_hb, heartbeat, route):
         #Type : int
         self.vehicle_id = vehicle_id
         #Type: String
@@ -17,20 +17,18 @@ class Car:
         # Type : Boolean
         self.last_hb = None
         # Type : Boolean
-        self.heartbeat = False
+        self.heartbeat = True
+
+        self.route = []
 
 
 
-    def toString():
-        print("Vehicle Information :: ", "\n")
-        print("Vehicle ID :: ", self.vehicle_id, "\n")
-        print("Vehicle Status :: ", self.vehicle_status, "\n")
-        print("Fleet ID :: ", self.fleet_id, "\n")
-        print("Vehicle Make :: ", self.vehicle_make, "\n")
-        print("Licence Plate # :: ", self.license_plate, "\n")
-        print("Current Lat :: ", self.current_lat, "\n")
-        print("Current Lon :: ", self.current_long, "\n")
-        print("Last Heartbeat :: ", self.last_hb, "\n")
+    def __str__(self):
+
+        vehicle_information = "   :: Vehicle Information ::"+ "\n"+" Vehicle ID :: "+ str(self.vehicle_id)+"\n"+" Fleet ID :: "+ str(self.fleet_id)+"\n"+" Vehicle Make :: "+ str(self.vehicle_make)+ "\n"+" Licence Plate # :: "+ self.license_plate+ "\n"+" Current Lat :: "+ str(self.current_lat)+"\n"+" Current Lon :: "+ str(self.current_long)+ "\n"+" Last Heartbeat :: "+ str(self.last_hb)
+
+        return vehicle_information
+
 
 
 
