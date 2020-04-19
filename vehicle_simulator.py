@@ -6,12 +6,12 @@ import threading
 from Car import Car
 from simulatedVehicle import simulatedVehicle
 from time import sleep
-from tabulate import tabulate
 from prettytable import PrettyTable
 import sys
 
 vehicle_list = []
 vehicle_db_dictionary = {}
+threaded_vehicles = {}
 
 class Controller:
     def __init__(self):
@@ -24,7 +24,6 @@ class Controller:
                 for index, vehicle in enumerate(self.vehicleArr, 1):
                     self.models.append(simulatedVehicle(vehicle, index))
             for model in self.models:
-
                 thread = threading.Thread(target=model.driver, name=f"model-{model.threadid}")
                 thread.start()
             sleep(3)
@@ -51,8 +50,8 @@ def printCurrentState(vehicle_dict):
     simulatorOptions.field_names = ["Simulator Options", "Description", "Command"]
     carTable = PrettyTable()
     carTable.field_names = ["Vehicle ID", "Status", "Fleet ID", "Make", "Licence Plate", "Current Longitude", "Current Latitude", "Last Heartbeat"]
-    simulatorOptions.add_row(["Kill Heartbeat", "Kill the heartbeat of a vehicle", "K"])
-    simulatorOptions.add_row(["Start Heartbeat", "Start the heartbeat of a vehicle, fleet, or all vehicles", "S"])
+    simulatorOptions.add_row(["Kill Heartbeat", "Kill the heartbeat of a vehicle", "Enter vehicle id of a currently "])
+    simulatorOptions.add_row(["Start Heartbeat", "Start the heartbeat of a vehicle, fleet, or all vehicles", "Enter a vehicle ID"])
 
     # keep asking user for input
     # if they do anything but start route, do backend data changes
@@ -104,25 +103,32 @@ def retrieveVehicles():
 
 
 def view(inputVar):
-    threaded_vehicles = {}
+
+    print('Input the vehicle id you want to spin up!')
     while True:
-        print('Input the vehicle id you want to spin up!')
         userInput = input("> ")
+        #print(threaded_vehicles.get(int(userInput)))
         if userInput.lower() == 'all':
             inputVar.extend([vehicle for vehicle in vehicle_db_dictionary.values()])
         #put something for turnoff heartbeat
+        elif threaded_vehicles.get(userInput):
+            print("** This vehicle is running! **\n")
+            for i in inputVar:
+                if(i.vehicle_id==int(userInput)):
+                    i.heartbeat = False
+                    print("Heartbeat stopped for vehicle ", str(i.vehicle_id))
         else:
             try:
                 #vehicle = vehicle_db_dictionary[int(userInput)]
                 vehicle = vehicle_db_dictionary.get(int(userInput))
-
                 if (vehicle != None):
                     inputVar.append(vehicle)
+                    threaded_vehicles.update({userInput: vehicle})
             except KeyError as ke:
                 print(ke)
                 print('Key doesn\'t exist in dictionary!')
 
-
+#Tomorrow! Stop hbs, formatting
 
 #group vehicles by fleet id
 #an option to select a fleet and send heartbeats for a fleet

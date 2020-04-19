@@ -20,10 +20,10 @@ class simulatedVehicle:
 
 
     def heartbeat(self):
-        print('I just sent a heartbeat', end='\n\n> Enter another vehicle ! ')
+
+        print('\nNow sending a heartbeat for vehicle ',str(self.vehicle.vehicle_id), end='\n')
         #change a bit to adapt to hh/mm/ss.ms
         #print("currently sending a heartbeat!!")
-        sleep(1)
         now = datetime.now().isoformat()
         postBody = {
             'vid': self.vehicle.vehicle_id,
