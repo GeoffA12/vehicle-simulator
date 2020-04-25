@@ -8,11 +8,13 @@ from simulatedVehicle import simulatedVehicle
 from time import sleep
 from prettytable import PrettyTable
 import sys
+import os
 
 vehicle_list = []
 vehicle_db_dictionary = {}
 threaded_vehicles = {}
 
+#Controller class used to start individual vehicle threads
 class Controller:
     def __init__(self):
         self.vehicleArr = []
@@ -35,9 +37,11 @@ def main():
     print("\t*************************************************")
     print("\t**** Welcome to the WeGo Vehicle Simulator!  ****")
     print("\t*************************************************")
-    print("\t*** Any time you want you quit just press 'Q' ***")
+    print("\t*** Any time you want you quit just press 'k' ***")
     print("\t*************************************************")
     print("\t********* Retrieving your vehicles .... *********")
+    print("\n")
+    sleep(1)
     global vehicle_db_dictionary
 
     vehicle_db_dictionary = retrieveVehicles()
@@ -52,6 +56,7 @@ def printCurrentState(vehicle_dict):
     carTable.field_names = ["Vehicle ID", "Status", "Fleet ID", "Make", "Licence Plate", "Current Longitude", "Current Latitude", "Last Heartbeat"]
     simulatorOptions.add_row(["Kill Heartbeat", "Kill the heartbeat of a vehicle", "Enter vehicle id of a currently "])
     simulatorOptions.add_row(["Start Heartbeat", "Start the heartbeat of a vehicle, fleet, or all vehicles", "Enter a vehicle ID"])
+
 
     # keep asking user for input
     # if they do anything but start route, do backend data changes
@@ -75,7 +80,6 @@ def retrieveVehicles():
     v_dict = {}
     if request_vehicles:
         vehicles = request_vehicles.json()
-        vehicles.pop(0)
         for v in vehicles:
             v_id = v.get("vehicleid")
             v_stat = v.get("status")
@@ -87,7 +91,7 @@ def retrieveVehicles():
             last_hb = v.get("last_hb")
             heartbeat = True
             route = []
-            simulated_vehicle = Car(v_id, v_stat, f_id, v_make, l_plate, c_long, c_lat, last_hb, heartbeat, route)
+            simulated_vehicle = Car(v_id, v_stat, f_id, v_make, l_plate, c_lat, c_long, last_hb, heartbeat, route)
             v_dict.update({v_id : simulated_vehicle})
         #return v_list
         #for a car to be on it's not in maintenance
@@ -99,7 +103,7 @@ def retrieveVehicles():
     else:
         print("ERROR :: ", request_vehicles.status_code)
         print("We were not able to retrieve your vehicles, closing application ... ")
-        sys.exit
+        sys.exit()
 
 
 def view(inputVar):
@@ -111,6 +115,14 @@ def view(inputVar):
         if userInput.lower() == 'all':
             inputVar.extend([vehicle for vehicle in vehicle_db_dictionary.values()])
         #put something for turnoff heartbeat
+        elif userInput == "k":
+            print("Program now exiting ..")
+            sleep(.5)
+            print(" ..")
+            os._exit(0)
+        elif not RepresentsInt(userInput):
+            print("Invalid input!")
+        #condition to stop a heartbeat
         elif threaded_vehicles.get(userInput):
             print("** This vehicle is running! **\n")
             for i in inputVar:
@@ -124,29 +136,18 @@ def view(inputVar):
                 if (vehicle != None):
                     inputVar.append(vehicle)
                     threaded_vehicles.update({userInput: vehicle})
+                else:
+                    print("No vehicle with this ID")
             except KeyError as ke:
                 print(ke)
                 print('Key doesn\'t exist in dictionary!')
 
-#Tomorrow! Stop hbs, formatting
-
-#group vehicles by fleet id
-#an option to select a fleet and send heartbeats for a fleet
-#heartbeat goes in model??
-#Always updating position
-#For interface: keep track of vehicles being simulated
-
-    #sendHB's??????3
-    #getback a status?????
-    #logic for checking its status for a routes
-    #
-
-
-#Was trying to flesh out an idea about executing a route, this ideally will be used later?
-
-
-# If button is pressed, make request for the id of that vehicle ?
-# How does this work with threading?? So if I click a button for an option, does it call that function with that car? In that thread?
+def RepresentsInt(s):
+    try:
+        int(s)
+        return True
+    except ValueError:
+        return False
 
 
 if __name__ == '__main__':
