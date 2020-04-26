@@ -16,6 +16,6 @@ Please refer to the [official docker docs](https://docs.docker.com/get-docker/) 
 
 After setting up docker desktop, you'll be able to pull and run our vehicle simulator application using the following commands:
 
-* `docker pull 42602550/team22vsim:team22vsim`
+* `docker pull 42602550/team22:team22vsim`
 * `docker run -it --name vsim [imageIdHere] python vehicle_simulator.py`
 
