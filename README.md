@@ -14,8 +14,14 @@ Our vehicle simulator image uses the lightweight `3.6-alpine` python image. For 
 
 Please refer to the [official docker docs](https://docs.docker.com/get-docker/) as to installing docker on your computer. 
 
+### Docker Desktop MacOS/Linux 
+
 After setting up docker desktop, you'll be able to pull and run our vehicle simulator application using the following commands:
 
-* `docker pull 42602550/team22:team22vsim`
-* `docker run -it --name vsim [imageIdHere] python vehicle_simulator.py`
+* `sudo docker pull 42602550/team22:team22vsim`
+* `sudo docker run -it 42602550/team22:team22vsim python vehicle_simulator.py`
 
+### Docker Desktop Windows
+
+* `docker pull 42602550/team22:team22vsim`
+* `docker run -it 42602550/team22:team22vsim python vehicle_simulator.py`
