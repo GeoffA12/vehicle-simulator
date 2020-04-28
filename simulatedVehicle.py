@@ -17,18 +17,17 @@ class simulatedVehicle:
                 nextCoor = self.vehicle.route.pop(0)
                 self.vehicle.current_long = nextCoor[0]
                 self.vehicle.current_lat = nextCoor[1]
-                request_url = 'https://api.mapbox.com/geocoding/v5/mapbox.places/'+str(self.vehicle.current_long)+','+str(self.vehicle.current_lat)+'.json?access_token=pk.eyJ1IjoiY3N5Y2hldiIsImEiOiJjazZsbmg4c2gwYXU3M21zOG55aTljcTBuIn0.G5UXjF-3_0mXKo6huFgLwg'
-                address_request = requests.get(request_url)
-                address_data = address_request.json()
-                address = json.dumps(address_data.get("features")[0].get("place_name"))
-                print("Current location of vehicle",str(self.vehicle.vehicle_id)," ::", address, "\n")
+
             if self.vehicle.heartbeat:
                 self.heartbeat()
 
 
     def heartbeat(self):
-
-        print('\nNow sending a heartbeat for vehicle ',str(self.vehicle.vehicle_id), end='\n')
+        request_url = 'https://api.mapbox.com/geocoding/v5/mapbox.places/'+str(self.vehicle.current_long)+','+str(self.vehicle.current_lat)+'.json?access_token=pk.eyJ1IjoiY3N5Y2hldiIsImEiOiJjazZsbmg4c2gwYXU3M21zOG55aTljcTBuIn0.G5UXjF-3_0mXKo6huFgLwg'
+        address_request = requests.get(request_url)
+        address_data = address_request.json()
+        address = json.dumps(address_data.get("features")[0].get("place_name"))
+        print('\nNow sending a heartbeat for vehicle ', str(self.vehicle.vehicle_id), '...\n', "  Current location :: ", address)
         now = datetime.now().isoformat()
         #data being sent to supply BE to update vehicle database
         postBody = {
@@ -49,5 +48,3 @@ class simulatedVehicle:
             route = response.json().pop(1)
             route.pop(0)
             self.vehicle.route = route
-        else:
-            print("ERROR :: ", response.status_code)
